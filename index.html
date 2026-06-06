@@ -25,9 +25,9 @@
 
 <!-- NAV TABS -->
 <nav>
-  <button class="active" onclick="showSection('programme')">Programme</button>
-  <button onclick="showSection('classement')">Classement</button>
-  <button onclick="showSection('bracket')">Bracket</button>
+  <button class="active" onclick="showSection('programme', this)">Programme</button>
+  <button onclick="showSection('classement', this)">Classement</button>
+  <button onclick="showSection('bracket', this)">Bracket</button>
 </nav>
 
 <!-- MAIN -->
@@ -35,51 +35,29 @@
 
   <!-- ══════════════ PROGRAMME ══════════════ -->
   <section class="section active" id="programme">
-
-    <!-- PHASE 1 -->
     <div class="phase-block">
       <div class="phase-title">Phase 1 — Championnat <span style="font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.08em;">(1×15')</span></div>
       <div class="terrain-grid">
-        <div>
-          <div class="terrain-label">⬡ Terrain 1</div>
-          <div id="t1-matches"></div>
-        </div>
-        <div>
-          <div class="terrain-label">⬡ Terrain 2</div>
-          <div id="t2-matches"></div>
-        </div>
+        <div><div class="terrain-label">⬡ Terrain 1</div><div id="t1-matches"></div></div>
+        <div><div class="terrain-label">⬡ Terrain 2</div><div id="t2-matches"></div></div>
       </div>
     </div>
 
     <div class="pause-banner">☕ Pause de midi — 50 min</div>
 
-    <!-- PHASE 2 -->
     <div class="phase-block">
       <div class="phase-title">Phase 2 — Matchs de Classement</div>
       <div class="terrain-grid">
-        <div>
-          <div class="terrain-label">⬡ Terrain 1</div>
-          <div id="p2-t1-matches"></div>
-        </div>
-        <div>
-          <div class="terrain-label">⬡ Terrain 2</div>
-          <div id="p2-t2-matches"></div>
-        </div>
+        <div><div class="terrain-label">⬡ Terrain 1</div><div id="p2-t1-matches"></div></div>
+        <div><div class="terrain-label">⬡ Terrain 2</div><div id="p2-t2-matches"></div></div>
       </div>
     </div>
 
-    <!-- PHASE 3 -->
     <div class="phase-block">
       <div class="phase-title">Phase 3 — Phase Finale</div>
       <div class="terrain-grid">
-        <div>
-          <div class="terrain-label">⬡ Terrain 1</div>
-          <div id="p3-t1-matches"></div>
-        </div>
-        <div>
-          <div class="terrain-label">⬡ Terrain 2</div>
-          <div id="p3-t2-matches"></div>
-        </div>
+        <div><div class="terrain-label">⬡ Terrain 1</div><div id="p3-t1-matches"></div></div>
+        <div><div class="terrain-label">⬡ Terrain 2</div><div id="p3-t2-matches"></div></div>
       </div>
     </div>
 
@@ -97,8 +75,7 @@
         <tr>
           <th>Équipe</th>
           <th>J</th><th>V</th><th>N</th><th>D</th>
-          <th>BP</th><th>BC</th><th>Diff</th>
-          <th>Pts</th>
+          <th>BP</th><th>BC</th><th>Diff</th><th>Pts</th>
         </tr>
       </thead>
       <tbody id="classement-body"></tbody>
@@ -113,24 +90,17 @@
     <div class="section-heading">Arbre du Tournoi</div>
     <div class="bracket-wrap">
       <div class="bracket">
-
-        <!-- DEMI-FINALES / Classements -->
         <div class="bracket-round">
           <div class="round-label">Quarts (12h30)</div>
           <div class="round-matches" id="br-quarts"></div>
         </div>
-
         <div class="connector"><div class="conn-line"></div></div>
-
-        <!-- FINALES -->
         <div class="bracket-round">
           <div class="round-label">Finales (13h04)</div>
           <div class="round-matches" id="br-finales"></div>
         </div>
-
       </div>
     </div>
-
     <div class="prize-section">
       <div class="prize-time">🏆 14h50</div>
       <div class="prize-label">Remise des Prix</div>
@@ -139,35 +109,36 @@
 
 </main>
 
-<script>
-// ─────────────────────────────────────────────
-//  DATA
-// ─────────────────────────────────────────────
-const TEAMS = [
-  'Hensies A',
-  'ASC Baudour',
-  'US Emines',
-  'AS. Obigies',
-  'Hensies A',   // (alias pour terrain 2 rotations)
-  'SP Vicq',
-  'Bruay Sports',
-  'Olympic Charleroi',
-  'Hensies B',
-];
+<!-- ───────────────────────────────────────────
+     FIREBASE SDK (CDN, pas besoin de npm)
+──────────────────────────────────────────── -->
+<script type="module">
+import { initializeApp }         from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue }
+                                  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Équipes réelles par lettre (A-H) selon le programme
-const TEAM = {
-  A: 'Hensies A',
-  B: 'ASC Baudour',
-  C: 'US Emines',
-  D: 'AS. Obigies',
-  E: 'SP Vicq',
-  F: 'Bruay Sports',
-  G: 'Olympic Charleroi',
-  H: 'Hensies B',
+// ── Config Firebase ──────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyB4Do6MggCGMzn2uzkz6ng1thQal6VNyuU",
+  authDomain:        "hensies-cup.firebaseapp.com",
+  databaseURL:       "https://hensies-cup-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "hensies-cup",
+  storageBucket:     "hensies-cup.firebasestorage.app",
+  messagingSenderId: "959581017505",
+  appId:             "1:959581017505:web:187edb452a8ff7e67867e0"
 };
 
-// Phase 1 matches
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ── Données du tournoi ───────────────────────
+const TEAM = {
+  A: 'Hensies A',   B: 'ASC Baudour',
+  C: 'US Emines',   D: 'AS. Obigies',
+  E: 'SP Vicq',     F: 'Bruay Sports',
+  G: 'Olympic Charleroi', H: 'Hensies B',
+};
+
 const PHASE1 = [
   { id:'p1_1', time:'09:30 - 09:45', t1a:'A', t1b:'B', t2a:'E', t2b:'F' },
   { id:'p1_2', time:'09:50 - 10:05', t1a:'C', t1b:'D', t2a:'G', t2b:'H' },
@@ -179,139 +150,142 @@ const PHASE1 = [
   { id:'p1_8', time:'11:50 - 12:05', t1a:'C', t1b:'G', t2a:'D', t2b:'H' },
 ];
 
-// Phase 2 matches
 const PHASE2 = [
-  { id:'p2_1', time:'12:30 - 12:45', t1:'1er vs 4e', t2:'2e vs 3e' },
-  { id:'p2_2', time:'12:47 - 13:02', t1:'5e vs 8e', t2:'6e vs 7e' },
+  { id:'p2_1', time:'12:30 - 12:45', t1:'1er vs 4e',  t2:'2e vs 3e'  },
+  { id:'p2_2', time:'12:47 - 13:02', t1:'5e vs 8e',   t2:'6e vs 7e'  },
 ];
 
-// Phase 3 matches
 const PHASE3 = [
-  { id:'p3_1', time:'13:04 - 13:16', t1:'7e place', t2:'5e place' },
-  { id:'p3_2', time:'13:21 - 13:33', t1:'Petite finale', t2: '' },
-  { id:'p3_3', time:'13:38 - 13:50', t1:'Finale 🏆', t2: '' },
+  { id:'p3_1', time:'13:04 - 13:16', t1:'7e place',       t2:'5e place' },
+  { id:'p3_2', time:'13:21 - 13:33', t1:'Petite finale',  t2:''         },
+  { id:'p3_3', time:'13:38 - 13:50', t1:'Finale 🏆',      t2:''         },
 ];
 
-// Storage key
-const STORE_KEY = 'hensies_cup_scores';
+// ── Scores en mémoire (mis à jour par Firebase) ─
+let scores = {};
 
-// Load/save scores
-function loadScores() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; }
-}
-function saveScores(s) {
-  localStorage.setItem(STORE_KEY, JSON.stringify(s));
+// ── Écriture dans Firebase ───────────────────
+function setScore(fullId, side, val) {
+  const path = 'scores/' + fullId + '/' + side;
+  set(ref(db, path), val === '' ? null : Number(val));
 }
 
-let scores = loadScores();
-
-// ─────────────────────────────────────────────
-//  HELPERS
-// ─────────────────────────────────────────────
-function getScore(id, side) {
-  return scores[id]?.[side] ?? '';
-}
-function setScore(id, side, val) {
-  if (!scores[id]) scores[id] = {};
-  scores[id][side] = val;
-  saveScores(scores);
+// ── Écoute temps réel (toute la branche scores) ─
+onValue(ref(db, 'scores'), snapshot => {
+  scores = snapshot.val() || {};
+  renderProgramme();
   updateClassement();
   updateBracket();
+});
+
+// ── Helpers ──────────────────────────────────
+function getScore(fullId, side) {
+  const v = scores[fullId]?.[side];
+  return v !== undefined && v !== null ? v : '';
 }
 
-function isDone(id) {
-  const s = scores[id];
-  return s && s.s1 !== '' && s.s1 !== undefined && s.s2 !== '' && s.s2 !== undefined;
+function isDone(fullId) {
+  const s = scores[fullId];
+  return s && s.s1 !== undefined && s.s1 !== null &&
+             s.s2 !== undefined && s.s2 !== null;
 }
 
-// ─────────────────────────────────────────────
-//  BUILD MATCH CARD  (Phase 1 : scores inline)
-// ─────────────────────────────────────────────
+// ── Rendu d'une carte match (Phase 1) ────────
 function buildMatchCard(id, time, teamA, teamB, terrain) {
-  const card = document.createElement('div');
-  card.className = 'match-card' + (isDone(id + '_' + terrain) ? ' done' : '');
-  card.id = 'card_' + id + '_' + terrain;
-
-  const s1key = terrain + '_s1';
-  const s2key = terrain + '_s2';
   const fullId = id + '_' + terrain;
+  const card = document.createElement('div');
+  card.className = 'match-card' + (isDone(fullId) ? ' done' : '');
+  card.id = 'card_' + fullId;
+
+  const s1 = getScore(fullId, 's1');
+  const s2 = getScore(fullId, 's2');
 
   card.innerHTML = `
     <div class="match-time">${time}</div>
     <div class="match-teams">
       <span class="team-name">${teamA}</span>
       <div class="score-input">
-        <input type="number" min="0" max="99" value="${getScore(fullId,'s1')}"
-               placeholder="-" id="inp_${fullId}_s1"
-               onchange="setScore('${fullId}','s1',this.value);refreshCard('${fullId}')">
+        <input type="number" min="0" max="99"
+               value="${s1}" placeholder="–"
+               id="inp_${fullId}_s1">
         <span class="score-sep">–</span>
-        <input type="number" min="0" max="99" value="${getScore(fullId,'s2')}"
-               placeholder="-" id="inp_${fullId}_s2"
-               onchange="setScore('${fullId}','s2',this.value);refreshCard('${fullId}')">
+        <input type="number" min="0" max="99"
+               value="${s2}" placeholder="–"
+               id="inp_${fullId}_s2">
       </div>
       <span class="team-name">${teamB}</span>
     </div>
   `;
+
+  // Envoi à Firebase au changement
+  card.querySelector('#inp_' + fullId + '_s1').addEventListener('change', e => {
+    setScore(fullId, 's1', e.target.value);
+  });
+  card.querySelector('#inp_' + fullId + '_s2').addEventListener('change', e => {
+    setScore(fullId, 's2', e.target.value);
+  });
+
   return card;
 }
 
-function refreshCard(fullId) {
-  const card = document.getElementById('card_' + fullId);
-  if (!card) return;
-  if (isDone(fullId)) card.classList.add('done');
-  else card.classList.remove('done');
-}
-
-// ─────────────────────────────────────────────
-//  BUILD SIMPLE CARD (Phase 2/3 : label only)
-// ─────────────────────────────────────────────
+// ── Rendu d'une carte simple (Phase 2/3) ─────
 function buildSimpleCard(id, time, label, terrain) {
   const fullId = id + '_' + terrain;
   const card = document.createElement('div');
   card.className = 'match-card' + (isDone(fullId) ? ' done' : '');
   card.id = 'card_' + fullId;
 
+  const s1 = getScore(fullId, 's1');
+  const s2 = getScore(fullId, 's2');
+
   card.innerHTML = `
     <div class="match-time">${time}</div>
     <div class="match-teams">
       <span class="team-name" style="flex:none;width:100%;text-align:center;">${label}</span>
       <div class="score-input" style="margin-left:8px;">
-        <input type="number" min="0" max="99" value="${getScore(fullId,'s1')}"
-               placeholder="-" id="inp_${fullId}_s1"
-               onchange="setScore('${fullId}','s1',this.value);refreshCard('${fullId}')">
+        <input type="number" min="0" max="99"
+               value="${s1}" placeholder="–"
+               id="inp_${fullId}_s1">
         <span class="score-sep">–</span>
-        <input type="number" min="0" max="99" value="${getScore(fullId,'s2')}"
-               placeholder="-" id="inp_${fullId}_s2"
-               onchange="setScore('${fullId}','s2',this.value);refreshCard('${fullId}')">
+        <input type="number" min="0" max="99"
+               value="${s2}" placeholder="–"
+               id="inp_${fullId}_s2">
       </div>
     </div>
   `;
+
+  card.querySelector('#inp_' + fullId + '_s1').addEventListener('change', e => {
+    setScore(fullId, 's1', e.target.value);
+  });
+  card.querySelector('#inp_' + fullId + '_s2').addEventListener('change', e => {
+    setScore(fullId, 's2', e.target.value);
+  });
+
   return card;
 }
 
-// ─────────────────────────────────────────────
-//  RENDER PROGRAMME
-// ─────────────────────────────────────────────
+// ── Rendu du programme ────────────────────────
 function renderProgramme() {
-  const t1 = document.getElementById('t1-matches');
-  const t2 = document.getElementById('t2-matches');
-  t1.innerHTML = ''; t2.innerHTML = '';
+  const t1  = document.getElementById('t1-matches');
+  const t2  = document.getElementById('t2-matches');
+  const p2t1 = document.getElementById('p2-t1-matches');
+  const p2t2 = document.getElementById('p2-t2-matches');
+  const p3t1 = document.getElementById('p3-t1-matches');
+  const p3t2 = document.getElementById('p3-t2-matches');
+  if (!t1) return;
 
+  t1.innerHTML = ''; t2.innerHTML = '';
   PHASE1.forEach(m => {
     t1.appendChild(buildMatchCard(m.id, m.time, TEAM[m.t1a], TEAM[m.t1b], 't1'));
     t2.appendChild(buildMatchCard(m.id, m.time, TEAM[m.t2a], TEAM[m.t2b], 't2'));
   });
 
-  const p2t1 = document.getElementById('p2-t1-matches');
-  const p2t2 = document.getElementById('p2-t2-matches');
   p2t1.innerHTML = ''; p2t2.innerHTML = '';
   PHASE2.forEach(m => {
     p2t1.appendChild(buildSimpleCard(m.id, m.time, m.t1, 't1'));
     if (m.t2) p2t2.appendChild(buildSimpleCard(m.id, m.time, m.t2, 't2'));
   });
 
-  const p3t1 = document.getElementById('p3-t1-matches');
-  const p3t2 = document.getElementById('p3-t2-matches');
   p3t1.innerHTML = ''; p3t2.innerHTML = '';
   PHASE3.forEach(m => {
     p3t1.appendChild(buildSimpleCard(m.id, m.time, m.t1, 't1'));
@@ -319,12 +293,10 @@ function renderProgramme() {
   });
 }
 
-// ─────────────────────────────────────────────
-//  CLASSEMENT (Phase 1)
-// ─────────────────────────────────────────────
+// ── Classement ───────────────────────────────
 function computeStandings() {
   const stat = {};
-  ['A','B','C','D','E','F','G','H'].forEach(t => {
+  Object.keys(TEAM).forEach(t => {
     stat[t] = { team: TEAM[t], j:0, v:0, n:0, d:0, bp:0, bc:0 };
   });
 
@@ -332,8 +304,9 @@ function computeStandings() {
     [['t1', m.t1a, m.t1b], ['t2', m.t2a, m.t2b]].forEach(([ter, ta, tb]) => {
       const fid = m.id + '_' + ter;
       const s = scores[fid];
-      if (!s || s.s1 === '' || s.s1 === undefined || s.s2 === '' || s.s2 === undefined) return;
-      const g1 = parseInt(s.s1), g2 = parseInt(s.s2);
+      if (!s || s.s1 === undefined || s.s1 === null ||
+                s.s2 === undefined || s.s2 === null) return;
+      const g1 = Number(s.s1), g2 = Number(s.s2);
       if (isNaN(g1) || isNaN(g2)) return;
       stat[ta].j++; stat[tb].j++;
       stat[ta].bp += g1; stat[ta].bc += g2;
@@ -344,7 +317,7 @@ function computeStandings() {
     });
   });
 
-  return Object.values(stat).sort((a,b) => {
+  return Object.values(stat).sort((a, b) => {
     const pa = a.v*3+a.n, pb = b.v*3+b.n;
     if (pb !== pa) return pb - pa;
     const da = a.bp-a.bc, db = b.bp-b.bc;
@@ -356,105 +329,71 @@ function computeStandings() {
 function updateClassement() {
   const tbody = document.getElementById('classement-body');
   if (!tbody) return;
-  const rows = computeStandings();
   tbody.innerHTML = '';
-  rows.forEach((r, i) => {
+  computeStandings().forEach((r, i) => {
     const rank = i + 1;
-    const pts = r.v*3 + r.n;
+    const pts  = r.v*3 + r.n;
     const diff = r.bp - r.bc;
-    const badgeClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : '';
-    const rowClass = rank <= 4 ? 'top-4' : '';
-    const diffStr = diff > 0 ? '+' + diff : diff;
+    const bc   = rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
     tbody.insertAdjacentHTML('beforeend', `
-      <tr class="${rowClass}">
-        <td><span class="rank-badge ${badgeClass}">${rank}</span>${r.team}</td>
-        <td>${r.j}</td>
-        <td>${r.v}</td>
-        <td>${r.n}</td>
-        <td>${r.d}</td>
-        <td>${r.bp}</td>
-        <td>${r.bc}</td>
-        <td>${diffStr}</td>
+      <tr class="${rank<=4?'top-4':''}">
+        <td><span class="rank-badge ${bc}">${rank}</span>${r.team}</td>
+        <td>${r.j}</td><td>${r.v}</td><td>${r.n}</td><td>${r.d}</td>
+        <td>${r.bp}</td><td>${r.bc}</td>
+        <td>${diff>0?'+'+diff:diff}</td>
         <td class="pts">${pts}</td>
       </tr>
     `);
   });
 }
 
-// ─────────────────────────────────────────────
-//  BRACKET
-// ─────────────────────────────────────────────
-function buildBracketMatch(labelA, labelB, scoreA, scoreB) {
-  const winA = scoreA !== '' && scoreB !== '' && parseInt(scoreA) > parseInt(scoreB);
-  const winB = scoreA !== '' && scoreB !== '' && parseInt(scoreB) > parseInt(scoreA);
+// ── Bracket ──────────────────────────────────
+function bMatch(labelA, labelB, fid) {
+  const s1 = getScore(fid, 's1'), s2 = getScore(fid, 's2');
+  const winA = s1!==''&&s2!==''&&Number(s1)>Number(s2);
+  const winB = s1!==''&&s2!==''&&Number(s2)>Number(s1);
   return `
     <div class="bracket-match">
-      <div class="bracket-team ${winA ? 'winner' : winB ? 'loser' : ''}">
+      <div class="bracket-team ${winA?'winner':winB?'loser':''}">
         <span class="bracket-team-name">${labelA}</span>
-        <span class="bracket-score">${scoreA !== '' ? scoreA : '–'}</span>
+        <span class="bracket-score">${s1!==''?s1:'–'}</span>
       </div>
-      <div class="bracket-team ${winB ? 'winner' : winA ? 'loser' : ''}">
+      <div class="bracket-team ${winB?'winner':winA?'loser':''}">
         <span class="bracket-team-name">${labelB}</span>
-        <span class="bracket-score">${scoreB !== '' ? scoreB : '–'}</span>
+        <span class="bracket-score">${s2!==''?s2:'–'}</span>
       </div>
     </div>
   `;
 }
 
-function getBracketScore(id, terrain) {
-  const fid = id + '_' + terrain;
-  const s = scores[fid];
-  return [s?.s1 ?? '', s?.s2 ?? ''];
-}
-
 function updateBracket() {
-  const quarts = document.getElementById('br-quarts');
-  const finales = document.getElementById('br-finales');
-  if (!quarts || !finales) return;
+  const q = document.getElementById('br-quarts');
+  const f = document.getElementById('br-finales');
+  if (!q || !f) return;
 
-  // Quarts (Phase 2)
-  const [q1s1, q1s2] = getBracketScore('p2_1','t1');
-  const [q2s1, q2s2] = getBracketScore('p2_1','t2');
-  const [q3s1, q3s2] = getBracketScore('p2_2','t1');
-  const [q4s1, q4s2] = getBracketScore('p2_2','t2');
+  q.innerHTML =
+    bMatch('1er', '4e', 'p2_1_t1') +
+    bMatch('2e',  '3e', 'p2_1_t2') +
+    bMatch('5e',  '8e', 'p2_2_t1') +
+    bMatch('6e',  '7e', 'p2_2_t2');
 
-  quarts.innerHTML =
-    buildBracketMatch('1er', '4e', q1s1, q1s2) +
-    buildBracketMatch('2e',  '3e', q2s1, q2s2) +
-    buildBracketMatch('5e',  '8e', q3s1, q3s2) +
-    buildBracketMatch('6e',  '7e', q4s1, q4s2);
-
-  // Finales (Phase 3)
-  const [f7s1, f7s2] = getBracketScore('p3_1','t1');
-  const [f5s1, f5s2] = getBracketScore('p3_1','t2');
-  const [fpets1, fpets2] = getBracketScore('p3_2','t1');
-  const [fins1, fins2] = getBracketScore('p3_3','t1');
-
-  finales.innerHTML =
-    buildBracketMatch('Match 7e place — Eq.A', 'Match 7e place — Eq.B', f7s1, f7s2) +
-    buildBracketMatch('Match 5e place — Eq.A', 'Match 5e place — Eq.B', f5s1, f5s2) +
-    buildBracketMatch('Petite finale — Eq.A',  'Petite finale — Eq.B',  fpets1, fpets2) +
-    buildBracketMatch('Finale 🏆 — Eq.A',      'Finale 🏆 — Eq.B',      fins1, fins2);
+  f.innerHTML =
+    bMatch('Match 7e place — Eq.A', 'Match 7e place — Eq.B', 'p3_1_t1') +
+    bMatch('Match 5e place — Eq.A', 'Match 5e place — Eq.B', 'p3_1_t2') +
+    bMatch('Petite finale — Eq.A',  'Petite finale — Eq.B',  'p3_2_t1') +
+    bMatch('Finale 🏆 — Eq.A',      'Finale 🏆 — Eq.B',      'p3_3_t1');
 }
 
-// ─────────────────────────────────────────────
-//  TABS
-// ─────────────────────────────────────────────
-function showSection(id) {
+// ── Onglets ───────────────────────────────────
+window.showSection = function(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
   if (id === 'classement') updateClassement();
-  if (id === 'bracket') updateBracket();
-}
+  if (id === 'bracket')    updateBracket();
+};
 
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
-renderProgramme();
-updateClassement();
-updateBracket();
 </script>
 </body>
 </html>
