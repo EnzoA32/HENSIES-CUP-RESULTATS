@@ -34,14 +34,27 @@ body {
   overflow-x: hidden;
 }
 
-/* background texture */
+/* background image */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
+  background-image: url('bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(30,58,138,.55) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(59,130,246,.18) 0%, transparent 70%);
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(10,13,46,.80) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(10,13,46,.55) 0%, transparent 100%);
   pointer-events: none;
   z-index: 0;
 }
