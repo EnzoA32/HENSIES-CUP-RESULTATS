@@ -212,14 +212,14 @@ window.logout = function() { applyReadOnly(); sessionStorage.removeItem("hc_admi
 if (sessionStorage.getItem("hc_admin") === "1") { applyAdminMode(); }
 
 const PHASE1 = [
-  {id:"p1_1",time:"09:30",t1a:"Hensies A",       t1b:"ASC Baudour",      t2a:"SP Vicq",          t2b:"Bruay Sports"},
+  {id:"p1_1",time:"09:30",t1a:"Hensies A",       t1b:"ASC Baudour",      t2a:"Arsenul",          t2b:"Bruay Sports"},
   {id:"p1_2",time:"09:50",t1a:"US Emines",        t1b:"AS. Obigies",      t2a:"Olympic Charleroi",t2b:"Hensies B"},
-  {id:"p1_3",time:"10:10",t1a:"Hensies A",        t1b:"SP Vicq",          t2a:"ASC Baudour",      t2b:"Bruay Sports"},
+  {id:"p1_3",time:"10:10",t1a:"Hensies A",        t1b:"Arsenul",          t2a:"ASC Baudour",      t2b:"Bruay Sports"},
   {id:"p1_4",time:"10:30",t1a:"US Emines",        t1b:"Olympic Charleroi",t2a:"AS. Obigies",      t2b:"Hensies B"},
-  {id:"p1_5",time:"10:50",t1a:"Hensies A",        t1b:"Bruay Sports",     t2a:"ASC Baudour",      t2b:"SP Vicq"},
+  {id:"p1_5",time:"10:50",t1a:"Hensies A",        t1b:"Bruay Sports",     t2a:"ASC Baudour",      t2b:"Arsenul"},
   {id:"p1_6",time:"11:10",t1a:"US Emines",        t1b:"Hensies B",        t2a:"AS. Obigies",      t2b:"Olympic Charleroi"},
   {id:"p1_7",time:"11:30",t1a:"Hensies A",        t1b:"US Emines",        t2a:"ASC Baudour",      t2b:"AS. Obigies"},
-  {id:"p1_8",time:"11:50",t1a:"SP Vicq",          t1b:"Olympic Charleroi",t2a:"Bruay Sports",     t2b:"Hensies B"},
+  {id:"p1_8",time:"11:50",t1a:"Arsenul",          t1b:"Olympic Charleroi",t2a:"Bruay Sports",     t2b:"Hensies B"},
 ];
 const PHASE2 = [
   {id:"p2_1",time:"12:30",t1:"1er vs 4e",t2:"2e vs 3e"},
@@ -230,7 +230,7 @@ const PHASE3 = [
   {id:"p3_2",time:"13:21",t1:"Petite finale",t2:""},
   {id:"p3_3",time:"13:38",t1:"Finale 🏆",    t2:""},
 ];
-const ALL_TEAMS = ["Hensies A","ASC Baudour","US Emines","AS. Obigies","SP Vicq","Bruay Sports","Olympic Charleroi","Hensies B"];
+const ALL_TEAMS = ["Hensies A","ASC Baudour","US Emines","AS. Obigies","Arsenul","Bruay Sports","Olympic Charleroi","Hensies B"];
 
 let scores = {};
 
